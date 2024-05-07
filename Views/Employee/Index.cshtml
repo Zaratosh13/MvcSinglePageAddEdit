@@ -1,0 +1,75 @@
+﻿@model IEnumerable<EmployeeManagement.Models.Employee>
+
+@{ ViewBag.Title = "Index";
+                Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<h2 class="p-3 text-center">Employee List</h2>
+
+@if (TempData["InfoMessage"] != null)
+{
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+    @TempData["InfoMessage"]
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>}
+
+<p class="d-flex justify-content-end">
+    @Html.ActionLink("Add New Employee", "Create", null, new { @class = "btn btn-primary" })
+</p>
+
+<div id="partial">
+    @Html.Partial("Create", new EmployeeManagement.Models.Employee())
+</div>
+
+<table class="table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th scope="col">@Html.DisplayNameFor(model => model.Name)</th>
+            <th scope="col">@Html.DisplayNameFor(model => model.Designation)</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+<tr>
+    <td>@Html.DisplayFor(modelItem => item.Name)</td>
+    <td>@Html.DisplayFor(modelItem => item.Designation)</td>
+    <td>
+        @Html.ActionLink("Edit", "Create", new { id = item.Id }, new { @class = "btn btn-sm btn-success edit-button" })
+        @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { @class = "btn btn-sm btn-danger delete-button" })
+    </td>
+</tr>}
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        // Load the CreateOrEdit partial view when the page loads
+        $(function () {
+            $('#partial').load("/Employee/Create");
+        });
+
+        $(document).ready(function () {
+            $('.edit-button').click(function (e) {
+                e.preventDefault();
+                var url = $(this).attr('href');
+                $.get(url, function (data) {
+                    // Check if the partial view contains an employee ID input field
+                    var isEditMode = $(data).find('#Id').length > 0;
+                    // Check if it's in edit mode or insert mode
+                    if (isEditMode) {
+                        // If in edit mode, change the form action to update
+                        $('#partial').html(data).find('form').attr('action', url);
+                    } else {
+                        // If in insert mode, keep the form action as create
+                        $('#partial').html(data);
+                    }
+                });
+            });
+        });
+    </script>
+
+
+}
